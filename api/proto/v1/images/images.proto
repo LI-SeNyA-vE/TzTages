@@ -1,0 +1,61 @@
+// Для запуска
+//protoc \
+//    --proto_path=. \
+//    --go_out=. \
+//    --go-grpc_out=. \
+//    api/proto/v1/images/images.proto
+
+syntax = "proto3";
+
+package images.v1;
+
+option go_package = "api/proto/v1/images";
+
+// ImageService предоставляет API для загрузки, получения и скачивания изображений
+service ImageService {
+  // Загружает одно изображение на сервер
+  rpc UploadImage(UploadImageRequest) returns (UploadImageResponse) {}
+
+  // Возвращает список метаданных всех изображений
+  rpc ListImages(Empty) returns (ListImagesResponse) {}
+
+  // Скачивает изображение по image_id с сервера клиенту
+  rpc DownloadImage(DownloadImageRequest) returns (DownloadImageResponse) {}
+}
+
+// Метаданные изображения (без содержимого файла)
+message ImageMetadata {
+  string image_id = 1;     // Уникальный идентификатор изображения
+  string file_name = 2;     // Имя файла
+  int64 size_bytes = 3;    // Размер изображения в байтах
+}
+
+// Запрос на загрузку изображения
+message UploadImageRequest {
+  string file_name = 1;     // Имя файла, заданное клиентом
+  bytes data = 2;          // Бинарные данные изображения
+}
+
+// Ответ после загрузки изображения
+message UploadImageResponse {
+  ImageMetadata image_metadata = 1;     // Уникальный идентификатор изображения
+}
+
+// Запрос на скачивание изображения
+message DownloadImageRequest {
+  string image_id = 1;     // Идентификатор изображения, которое нужно скачать
+}
+
+// Ответ при скачивании изображения
+message DownloadImageResponse {
+  ImageMetadata image_metadata = 1;     // Имя скачиваемого файла
+  bytes data = 2;          // Бинарные данные изображения
+}
+
+// Ответ, содержащий список всех доступных изображений
+message ListImagesResponse {
+  repeated ImageMetadata image_metadata = 1; // Список метаданных изображений
+}
+
+// Пустое сообщение, используется если запрос не требует параметров
+message Empty {}
