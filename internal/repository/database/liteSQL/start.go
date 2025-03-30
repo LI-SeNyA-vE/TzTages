@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -16,6 +17,11 @@ type SQLiteForImage struct {
 }
 
 func NewSQLiteStorage() *SQLiteForImage {
+	// Создание каталога ./data если его нет
+	if err := os.MkdirAll("data", os.ModePerm); err != nil {
+		log.Fatal(fmt.Errorf("ошибка создания каталога для SQL базы %w", err))
+	}
+
 	dbPath := filepath.Join("data", "images.db")
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
