@@ -92,7 +92,6 @@ func main() {
 					continue
 				}
 
-				runtime.LockOSThread()
 				path, err := dialog.File().
 					Title("Сохранить файл").
 					SetStartFile(resp.ImageMetadata.FileName).
