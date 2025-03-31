@@ -1,6 +1,7 @@
 package main
 
 import (
+	"TzTages/pgk"
 	"bufio"
 	"context"
 	"fmt"
@@ -18,16 +19,32 @@ import (
 )
 
 func main() {
+	var port int
+	var err error
+
 	runtime.LockOSThread() //обязательно для GUI
 
-	conn, err := grpc.NewClient(":3200", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	reader := bufio.NewReader(os.Stdin)
+
+	for {
+		fmt.Print("Введите номер порта  от 1 до 65535 который прописан на сервере: ")
+		input, _ := reader.ReadString('\n')
+		input = strings.TrimSpace(input)
+
+		port, err = pgk.ValidPort(input)
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+		break
+	}
+
+	conn, err := grpc.NewClient(fmt.Sprintf(":%d", port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer conn.Close()
-
 	client := pb.NewImageServiceClient(conn)
-	reader := bufio.NewReader(os.Stdin)
 
 	for {
 		fmt.Print(`

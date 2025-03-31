@@ -5,7 +5,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -16,16 +15,17 @@ type SQLiteForImage struct {
 	db *sql.DB
 }
 
-func NewSQLiteStorage() *SQLiteForImage {
+func NewSQLiteStorage() (*SQLiteForImage, error) {
 	// Создание каталога ./data если его нет
 	if err := os.MkdirAll("data", os.ModePerm); err != nil {
-		log.Fatal(fmt.Errorf("ошибка создания каталога для SQL базы %w", err))
+		err = fmt.Errorf("ошибка создания каталога для SQL базы %w", err)
 	}
 
 	dbPath := filepath.Join("data", "images.db")
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
-		log.Fatal(fmt.Errorf("ошибка подключения к SQL базе %w", err))
+		err = fmt.Errorf("ошибка подключения к SQL базе %w", err)
+		return nil, err
 	}
 
 	createTable := `
@@ -38,12 +38,13 @@ func NewSQLiteStorage() *SQLiteForImage {
 	);
 	`
 	if _, err = db.Exec(createTable); err != nil {
-		log.Fatal(fmt.Errorf("ошибка инициализации таблицы: %w", err))
+		err = fmt.Errorf("ошибка инициализации таблицы: %w", err)
+		return nil, err
 	}
 
 	return &SQLiteForImage{
 		db: db,
-	}
+	}, nil
 }
 
 func (s SQLiteForImage) Create(ctx context.Context, uuid string, fileName string, data []byte, size int64) (err error) {

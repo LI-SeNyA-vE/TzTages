@@ -3,6 +3,7 @@ package grpc
 import (
 	"TzTages/internal/delivery/grpc/middleware"
 	"TzTages/internal/repository"
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"net"
@@ -11,9 +12,9 @@ import (
 	"TzTages/internal/delivery/grpc/handler"
 )
 
-func StartServerRPC(storage repository.StorageImage, log *logrus.Entry) {
+func StartServerRPC(port int, storage repository.StorageImage, log *logrus.Entry) {
 	// определяем порт для сервера
-	listen, err := net.Listen("tcp", ":3200")
+	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		log.Fatal(err)
 	}
